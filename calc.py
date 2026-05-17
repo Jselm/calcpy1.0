@@ -30,15 +30,31 @@ cadre = tkinter.Tk() #creer le cadre
 cadre.title("Calculatrice") #titre du cadre
 cadre.resizable(False, False) #faire en sorte qu'on puisse pas resize
 
-ecran =tkinter.Frame(cadre) #creer l'ecran dans le cadre
-composant=tkinter.Label(ecran, text="0", font=("Arial",45),width=nb_colonnes, background= "black", foreground= "white", anchor="e") #composant du haut dans l'ecran
+ecran = tkinter.Frame(cadre)
 
-composant.grid(row=0, column=0, columnspan=nb_colonnes, sticky="we")#we= west to east
+barre_menu = tkinter.Frame(ecran, background=charcoal_frost)
+barre_menu.grid(row=0, column=0, columnspan=nb_colonnes, sticky="we")
+
+menu = tkinter.Menubutton(barre_menu, relief="flat", text="≡", font=("Arial", 20), background=charcoal_frost, foreground="white")
+menu.pack(side="left", ipadx=10, ipady=5)
+
+nom_theme = tkinter.Label(barre_menu, text="theme ...", font=("Arial", 12), background=charcoal_frost, foreground="white")
+nom_theme.pack(side="left", padx=5)
+
+
+grille_boutons = tkinter.Label(ecran, text="0", font=("Arial",45), width=nb_colonnes, background="black", foreground="white", anchor="e")
+grille_boutons.grid(row=1, column=0, columnspan=nb_colonnes, sticky="we")
+
+
+
+
+
+
 
 for lignes in range(nb_lignes):
     for colonnes in range(nb_colonnes):
         val = bouttons[lignes][colonnes]
-        boutton = tkinter.Button(ecran,overrelief="sunken" , text=val, font=("Arial", 30),
+        boutton = tkinter.Button(ecran,relief="solid",overrelief="sunken" , text=val, font=("Arial", 30),
                                  width=nb_colonnes-1, height=1,
                                   command=lambda valeur=val: boutton_clique(valeur))
         if val in ligne_du_haut:
@@ -48,7 +64,7 @@ for lignes in range(nb_lignes):
         else:
             boutton.config(foreground="white", background=flint)
         
-        boutton.grid(row=lignes+1, column=colonnes)
+        boutton.grid(row=lignes+2, column=colonnes)
         
 
 ecran.pack()
@@ -69,53 +85,56 @@ def boutton_clique(valeur):
     if valeur in colonne_droite: #÷, ×, -, +, =
             if valeur == "=":
                 if A is not None and operateur is not None:
-                    B = composant["text"].split()[-1] #récupère le dernier nombre affiché après l'opérateur
+                    B = grille_boutons["text"].split()[-1] #récupère le dernier nombre affiché après l'opérateur
                     numeroA = float(A) 
                     numeroB = float(B)
                     if operateur == "+":
-                        composant["text"] = retirer_decimale_zero(numeroA + numeroB)
+                        grille_boutons["text"] = retirer_decimale_zero(numeroA + numeroB)
                     elif operateur == "-":
-                        composant["text"] = retirer_decimale_zero(numeroA - numeroB)
+                        grille_boutons["text"] = retirer_decimale_zero(numeroA - numeroB)
                     elif operateur == "×":
-                        composant["text"] = retirer_decimale_zero(numeroA * numeroB)
+                        grille_boutons["text"] = retirer_decimale_zero(numeroA * numeroB)
                     elif operateur == "÷":
-                        composant["text"] = retirer_decimale_zero(numeroA / numeroB)
+                        grille_boutons["text"] = retirer_decimale_zero(numeroA / numeroB)
                     A = "0"
                     B= "None"
                     operateur = None
             elif valeur in "+-×÷":
                 if operateur is None: #si ya deja 500 + et qu'on veut faire * ça remplace le + et pas le 500
-                    A = composant["text"]
+                    A = grille_boutons["text"]
                     B = "0"
                 operateur = valeur
-                composant["text"] = f"{A} {operateur} "
+                grille_boutons["text"] = f"{A} {operateur} "
 
     elif valeur in ligne_du_haut: #AC, +/-, %
         if valeur == "AC":
             A = "0"
             B= "None"
             operateur = None
-            composant["text"] = "0"
+            grille_boutons["text"] = "0"
         elif valeur == "+/-":
-            resultat = float(composant["text"]) * -1
-            composant["text"] = retirer_decimale_zero(resultat)
+            resultat = float(grille_boutons["text"]) * -1
+            grille_boutons["text"] = retirer_decimale_zero(resultat)
         elif valeur == "%":
-            resultat = float(composant["text"]) / 100
-            composant["text"] = retirer_decimale_zero(resultat)
+            if operateur is None:
+                resultat = float(grille_boutons["text"]) / 100
+                grille_boutons["text"] = retirer_decimale_zero(resultat)
+            else:
+                grille_boutons["text"] = "Error"
     else: #nombres ou décimale ou retour
         if valeur == "←":
-            if composant["text"] != "0" and len(composant["text"]) > 1:
-                composant["text"] = composant["text"][:-1]
+            if grille_boutons["text"] != "0" and len(grille_boutons["text"]) > 1:
+                grille_boutons["text"] = grille_boutons["text"][:-1]
             else:
-                composant["text"] = "0"
+                grille_boutons["text"] = "0"
         elif valeur == ",":
-            if valeur not in composant["text"]: #verif double virgule
-                composant["text"] += valeur 
+            if valeur not in grille_boutons["text"]: #verif double virgule
+                grille_boutons["text"] += valeur 
         elif valeur in "0123456789":
-            if composant["text"] == "0":
-                composant["text"] = valeur #remplace le 0 par le nombre cliqué, ex: si ya déjà 0 et qu'on appuie sur 5 ça affiche 5 et pas 05
+            if grille_boutons["text"] == "0":
+                grille_boutons["text"] = valeur #remplace le 0 par le nombre cliqué, ex: si ya déjà 0 et qu'on appuie sur 5 ça affiche 5 et pas 05
             else:
-                composant["text"] += valeur #ajoute le nombre cliqué à la suite de ce qui est déjà affiché
+                grille_boutons["text"] += valeur #ajoute le nombre cliqué à la suite de ce qui est déjà affiché
 
 #centrer l'ecran
 cadre.update()
